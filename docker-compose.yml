@@ -32,7 +32,7 @@ services:
     environment:
       MYSQL_HOST: mysql
       MYSQL_USER: admin
-      MYSQL_PASSWORD: root
+      MYSQL_PASSWORD: admin
       MYSQL_DB: devops
     depends_on:
       - mysql
