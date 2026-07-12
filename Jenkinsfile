@@ -1,64 +1,44 @@
-@Library("Shared") _
-pipeline{
-    
-    agent { label "dev"};
-    
-    stages{
-        stage("Code Clone"){
-            steps{
-               script{
-                   clone("https://github.com/LondheShubham153/two-tier-flask-app.git", "master")
-               }
-            }
-        }
-        stage("Trivy File System Scan"){
-            steps{
-                script{
-                    trivy_fs()
-                }
-            }
-        }
-        stage("Build"){
-            steps{
-                sh "docker build -t two-tier-flask-app ."
-            }
-            
-        }
-        stage("Test"){
-            steps{
-                echo "Developer / Tester tests likh ke dega..."
-            }
-            
-        }
-        stage("Push to Docker Hub"){
-            steps{
-                script{
-                    docker_push("dockerHubCreds","two-tier-flask-app")
-                }  
-            }
-        }
-        stage("Deploy"){
-            steps{
-                sh "docker compose up -d --build flask-app"
-            }
-        }
-    }
+pipeline {
+    agent any;
 
-post{
-        success{
-            script{
-                emailext from: 'mentor@trainwithshubham.com',
-                to: 'mentor@trainwithshubham.com',
-                body: 'Build success for Demo CICD App',
-                subject: 'Build success for Demo CICD App'
+    stages {
+
+        stage("Code") {
+            steps {
+                echo "Code clone start"
+                git url:"https://github.com/nitishgarg1/two-tier-flask-app.git/",branch:"master"
+                echo "code clone end"
             }
         }
-        failure{
-            script{
-                emailext from: 'mentor@trainwithshubham.com',
-                to: 'mentor@trainwithshubham.com',
-                body: 'Build Failed for Demo CICD App',
-                subject: 'Build Failed for Demo CICD App'
+
+        stage("Build") {
+            steps {
+                echo "Build start ho gaya"
+                sh "docker build -t myapp:latest ."
+                echo "Build end ho gaya"
+            }
+        }
+
+        stage("push to dockerhub") {
+            steps {
+               withCredentials([usernamePassword(
+                   credentialsId: 'dockerHubCreds', 
+                    usernameVariable: 'USER', 
+                   passwordVariable: 'PASS'
+             )]) {
+                    sh "docker login -u ${env.USER} -p ${env.PASS}"
+                    sh "docker image tag myapp:latest ${env.USER}/flaskapp:latest"
+                    sh "docker push ${env.USER}/flaskapp:latest"
+            }
+          
+            }
+        }
+
+        stage("Deploy") {
+            steps {
+                echo "Deploy start ho gaya"
+                sh "docker compose up -d "
+                 echo "Deploy end ho gaya"
             }
         }
     }
