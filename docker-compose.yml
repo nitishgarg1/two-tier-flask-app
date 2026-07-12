@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   mysql:
-    user: "${UID}:${GID}" 
+    # user: "${UID}:${GID}" 
     image: mysql:5.7
     container_name: mysql
     environment:
@@ -23,6 +23,8 @@ services:
       start_period: 60s
 
   flask-app:
+    # build:
+    #  context: .
     image: nitish62394/two-tier-flask-app
     container_name: flask-app
     ports:
