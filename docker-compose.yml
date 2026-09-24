@@ -25,7 +25,7 @@ services:
   flask-app:
     # build:
     #  context: .
-    image: nitish2605/flaskapp
+    image: nitishgarg2605/flaskapp
     container_name: flask-app
     ports:
       - "5000:5000"
